@@ -1,0 +1,32 @@
+package main.io;
+
+import java.util.Collection;
+
+public class ConsoleAppender implements Appender{
+	public ConsoleAppender(DefaultLayout layout){
+		
+	}
+	
+	@Override
+	public Layout getLayout(){
+		return null;
+	}
+	
+	@Override
+	public void setLayout(Layout layout){
+		
+	}
+	
+	@Override
+	public <T extends Formattable>T select(String msg, Collection<T> candidates){
+		StringBuilder builder= new StringBuilder(msg);
+		builder.append("[");
+		for(T candidate : candidates){
+			builder.append(candidate.getDisplayText());
+			builder.append(" ");
+		}
+		builder.append("]");
+		
+		return null;
+	}
+}

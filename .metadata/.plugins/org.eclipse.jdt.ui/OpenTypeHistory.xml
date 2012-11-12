@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<typeInfoHistroy>
+<typeInfo handle="=vending_simu/\/home\/kamichidu\/documents\/sources\/java\/eclipse\/plugins\/org.junit_4.10.0.v4_10_0_v20120426-0900\/junit.jar&lt;org.junit(Assert.class[Assert" modifiers="33" timestamp="1335655200000"/>
+<typeInfo handle="=vending_simu/src&lt;vendingmachine{Simulator.java[Simulator" modifiers="1" timestamp="1352636999000"/>
+<typeInfo handle="=vending_simu/\/usr\/java\/jdk1.7.0_03\/jre\/lib\/rt.jar&lt;javax.sound.midi(Sequence.class[Sequence" modifiers="33" timestamp="1334851077000"/>
+<typeInfo handle="=vending_simu/src&lt;vendingmachine{IOManager.java[IOManager" modifiers="1" timestamp="1352640341000"/>
+<typeInfo handle="=vending_simu/src&lt;vendingmachine{VendingMachine.java[VendingMachine" modifiers="513" timestamp="1352637185000"/>
+<typeInfo handle="=vending_simu/src&lt;vendingmachine{DrinkVendingMachine.java[DrinkVendingMachine" modifiers="1" timestamp="1352641394000"/>
+<typeInfo handle="=vending_simu/\/usr\/java\/jdk1.7.0_03\/jre\/lib\/rt.jar&lt;com.sun.java.util.jar.pack(Package$Class.class[Class" modifiers="17" timestamp="1334851077000"/>
+<typeInfo handle="=vending_simu/src&lt;vending_simu.tag{Coin.java[Coin" modifiers="513" timestamp="1351989280000"/>
+<typeInfo handle="=threading/src&lt;main.io{Appender.java[Appender" modifiers="513" timestamp="1352646150000"/>
+<typeInfo handle="=threading/src&lt;main.io{ConsoleAppender.java[ConsoleAppender" modifiers="1" timestamp="1352647455000"/>
+</typeInfoHistroy>

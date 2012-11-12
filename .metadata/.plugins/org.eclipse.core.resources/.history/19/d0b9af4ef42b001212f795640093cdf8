@@ -1,0 +1,6 @@
+package vendingmachine;
+
+import com.google.common.collect.ImmutableList;
+
+public interface Sequence{
+}

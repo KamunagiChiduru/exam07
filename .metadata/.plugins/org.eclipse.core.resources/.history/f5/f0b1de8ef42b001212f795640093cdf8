@@ -1,0 +1,27 @@
+package vendingmachine;
+
+import com.google.common.collect.ImmutableList;
+
+public class BuyProductSequence implements Scene{
+	private final VendingMachine vendingMachine;
+	
+	public BuyProductSequence(VendingMachine vendingMachine){
+		this.vendingMachine= vendingMachine;
+	}
+	
+	@Override
+	public Object select(ImmutableList<?> list){
+		return null;
+	}
+
+	@Override
+	public void operate(Object o){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Scene next(){
+		return this;
+	}
+}

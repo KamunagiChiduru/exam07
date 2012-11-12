@@ -1,0 +1,16 @@
+package vendingmachine;
+
+public class VendingMachineSelection implements Scene{
+	
+	@Override
+	public Scene start(){
+		System.out.println("購入する自動販売機を選択してください。");
+		System.out.print("[1:ドリンク 2:終了]>");
+		int i= selectIdx(1, 2);
+		
+		if(i == 1){
+			System.out.println("ドリンクの自動販売機です。");
+		}
+		return null;
+	}
+}

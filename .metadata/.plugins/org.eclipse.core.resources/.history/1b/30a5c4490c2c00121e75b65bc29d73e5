@@ -1,0 +1,23 @@
+package main;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class VendingMachine implements Callable<Customer>{
+	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
+	
+	public void comeNewCustomer(Customer newCustomer){
+		this.customerQueue.add(newCustomer);
+	}
+
+	/**
+	 * 
+	 * @return 買い物が終わったお客さん
+	 * @throws Exception
+	 */
+	@Override
+	public Customer call() throws Exception{
+		return null;
+	}
+}

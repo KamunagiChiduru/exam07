@@ -1,0 +1,12 @@
+package java.util;
+
+import java.util.Currency;
+
+import org.junit.Test;
+
+public class CurrencyTest{
+	@Test
+	public void test(){
+		System.out.println(Currency.getAvailableCurrencies());
+	}
+}

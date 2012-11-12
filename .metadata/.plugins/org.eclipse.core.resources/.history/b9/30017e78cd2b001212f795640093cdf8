@@ -1,0 +1,5 @@
+package vending_simu;
+
+public class StockSlot{
+	
+}

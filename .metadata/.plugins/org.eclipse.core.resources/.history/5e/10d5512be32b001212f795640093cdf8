@@ -1,0 +1,52 @@
+package vendingmachine;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+
+public class Simulator{
+	private static final Sequence FIRST_SEQUENCE= new VendingMachineSelectionSequence();
+	
+	static interface Sequence{
+		Sequence next();
+	}
+	static class VendingMachineSelectionSequence implements Sequence{
+		@Override
+		public Sequence next(){
+			return null;
+		}
+	}
+	static class OperationSelectionSequence implements Sequence{
+		@Override
+		public Sequence next(){
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	static class CoinSelectionSequence implements Sequence{
+		@Override
+		public Sequence next(){
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	static class ProductSelectionSequence implements Sequence{
+		@Override
+		public Sequence next(){
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public static void main(String[] args){
+		// 自販機選択
+		Sequence seq= Simulator.FIRST_SEQUENCE;
+		while(true){
+			seq= seq.next();
+		}
+		// 買い物結果表示
+	}
+	
+	static int selectIdx(int min, int max){
+		BufferedReader r = new BufferedReader(System.in);
+	}
+}

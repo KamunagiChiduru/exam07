@@ -1,0 +1,19 @@
+package main;
+
+import java.math.BigInteger;
+
+public final class Yen{
+	private final BigInteger amount;
+	
+	public Yen(int amount){
+		this.amount= BigInteger.valueOf(amount);
+	}
+	
+	public Yen(long amount){
+		this.amount= BigInteger.valueOf(amount);
+	}
+	
+	public Yen(String amount){
+		this.amount= new BigInteger(amount);
+	}
+}

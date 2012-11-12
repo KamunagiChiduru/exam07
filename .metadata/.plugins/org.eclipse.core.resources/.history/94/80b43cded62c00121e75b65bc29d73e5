@@ -1,0 +1,9 @@
+package main;
+
+import main.io.Appender;
+
+public class Customer{
+	public void showResult(Appender appender){
+		System.out.println("showResult");
+	}
+}

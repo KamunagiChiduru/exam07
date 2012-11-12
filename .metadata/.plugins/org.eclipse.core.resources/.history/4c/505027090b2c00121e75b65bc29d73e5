@@ -1,0 +1,12 @@
+package main;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Simulator{
+	public static void main(String[] args){
+		ExecutorService service= Executors.newCachedThreadPool();
+		
+		service.submit(new VendingMachine());
+	}
+}

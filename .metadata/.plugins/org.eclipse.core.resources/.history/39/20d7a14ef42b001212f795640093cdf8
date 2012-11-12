@@ -1,0 +1,9 @@
+package vendingmachine;
+
+import com.google.common.collect.ImmutableList;
+
+public interface Sequence{
+	Object select(ImmutableList<?> list);
+	void operate(Object o);
+	Sequence next();
+}

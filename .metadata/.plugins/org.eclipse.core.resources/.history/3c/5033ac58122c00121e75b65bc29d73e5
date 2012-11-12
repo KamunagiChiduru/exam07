@@ -1,0 +1,116 @@
+package main;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import main.io.Appender;
+import main.io.Formattable;
+
+import com.google.common.collect.ImmutableList;
+
+public class VendingMachine implements Callable<Customer>{
+	private final Appender appender;
+	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
+	
+	public VendingMachine(Appender appender){
+		this.appender= appender;
+	}
+	
+	public void comeNewCustomer(Customer newCustomer){
+		this.customerQueue.add(newCustomer);
+	}
+
+	/**
+	 * 
+	 * @return 買い物が終わったお客さん
+	 * @throws Exception
+	 */
+	@Override
+	public Customer call() throws Exception{
+		Customer customer= this.customerQueue.take();
+		
+		Operation op= Operation.SELECT_OPERATION;
+		while(op != Operation.EXIT_OPERATION){
+			op.setAppender(appender);
+			op= op.action(customer);
+		}
+		
+		return customer;
+	}
+	
+	/**
+	 * 操作
+	 * @author kamichidu
+	 */
+	private enum Operation implements Formattable{
+		EXIT_OPERATION {
+			@Override
+			Operation action(Customer customer){
+				return null;
+			}
+			
+			@Override
+			public String getDisplayText(){
+				return "終了";
+			}
+		}, 
+		SELECT_OPERATION {
+			@Override
+			Operation action(Customer customer){
+				ImmutableList<Operation> operationList= ImmutableList.of();
+				
+				Operation selected= appender.select("操作を選択してください。", operationList);
+				
+				return Operation.EXIT_OPERATION;
+			}
+			
+			@Override
+			public String getDisplayText(){
+				return "操作の選択";
+			}
+		}, 
+		SELECT_COIN {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public String getDisplayText(){
+				return "コインを入れる";
+			}
+		}, 
+		PAYBACK_COIN {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+			@Override
+			public String getDisplayText(){
+				return "コインを戻す";
+			}
+		}, 
+		SELECT_PRODUCT {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public String getDisplayText(){
+				return "買う";
+			}
+		}, 
+		;
+		
+		abstract Operation action(Customer customer);
+		Appender appender;
+		void setAppender(Appender appender){
+			this.appender= appender;
+		}
+	}
+}

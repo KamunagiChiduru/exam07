@@ -1,0 +1,23 @@
+package vendingmachine;
+
+import java.util.Collection;
+
+import com.google.common.collect.ImmutableList;
+
+public class IOManager{
+	public static IOManager getInstance(){
+		return INSTANCE;
+	}
+	
+	public <T> T select(String msg, Collection<T> candidates){
+		ImmutableList<T> ordered= ImmutableList.copyOf(candidates);
+		
+		System.out.println(msg);
+		System.out.print(candidates);
+		
+		return null;
+	}
+	
+	private static final IOManager INSTANCE= new IOManager();
+	private IOManager(){}
+}

@@ -1,0 +1,9 @@
+package main.io;
+
+import java.util.Collection;
+
+public interface Appender{
+	<T> T select(Collection<T> candidates);
+	Layout getLayout();
+	void setLayout(Layout layout);
+}

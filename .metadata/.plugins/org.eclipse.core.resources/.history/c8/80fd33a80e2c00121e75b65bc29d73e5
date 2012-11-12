@@ -1,0 +1,79 @@
+package main;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import main.io.Appender;
+
+public class VendingMachine implements Callable<Customer>{
+	private final Appender appender;
+	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
+	
+	public VendingMachine(Appender appender){
+		this.appender= appender;
+	}
+	
+	public void comeNewCustomer(Customer newCustomer){
+		this.customerQueue.add(newCustomer);
+	}
+
+	/**
+	 * 
+	 * @return 買い物が終わったお客さん
+	 * @throws Exception
+	 */
+	@Override
+	public Customer call() throws Exception{
+		Customer customer= this.customerQueue.take();
+		
+		Operation op= Operation.SELECT_OPERATION;
+		
+		while(op != Operation.EXIT_OPERATION){
+			op= op.action(customer);
+		}
+		
+		return customer;
+	}
+	
+	private enum Operation{
+		EXIT_OPERATION {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}, 
+		SELECT_OPERATION {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}, 
+		SELECT_COIN {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}, 
+		PAYBACK_COIN {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}, 
+		SELECT_PRODUCT {
+			@Override
+			Operation action(Customer customer){
+				// TODO Auto-generated method stub
+				return null;
+			}
+		}, 
+		;
+		
+		abstract Operation action(Customer customer);
+	}
+}

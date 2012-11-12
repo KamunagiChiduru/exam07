@@ -1,0 +1,7 @@
+
+public interface State{
+	void entry();
+	void action();
+	void exit();
+	State nextState();
+}

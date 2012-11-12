@@ -1,0 +1,9 @@
+package vendingmachine;
+
+public class CoinSelection implements Scene{
+	@Override
+	public Scene start(){
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

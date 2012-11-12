@@ -1,0 +1,16 @@
+package something;
+
+import java.util.Currency;
+import java.util.Set;
+
+import org.junit.Test;
+
+public class CurrencyTest{
+	@Test
+	public void test(){
+		Set<Currency> availables= Currency.getAvailableCurrencies();
+		
+		for(Currency available : availables)
+			System.out.println(available);
+	}
+}
