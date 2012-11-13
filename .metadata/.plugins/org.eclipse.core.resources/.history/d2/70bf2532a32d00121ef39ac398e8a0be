@@ -1,0 +1,19 @@
+package main;
+
+import main.io.Formattable;
+
+public enum Product implements Formattable{
+	COFFEE("コーヒー"), 
+	BOTTLE_COLA("ボトルのコーラ"), 
+	ENERGY_DRINK("栄養ドリンク"), 
+	TEE_OF_TOKUHO("トクホのお茶");
+
+	private final String name;
+	private Product(String name){
+		this.name= name;
+	}
+	@Override
+	public String getDisplayText(){
+		return this.name;
+	}
+}
