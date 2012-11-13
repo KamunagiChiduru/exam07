@@ -1,7 +1,0 @@
-package main;
-
-public class ConsoleAppender{
-	public ConsoleAppender(DefaultLayout layout){
-		
-	}
-}

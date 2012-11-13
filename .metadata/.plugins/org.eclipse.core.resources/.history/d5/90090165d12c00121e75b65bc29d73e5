@@ -1,9 +1,0 @@
-package main.io;
-
-import java.util.Collection;
-
-public interface Appender{
-	<T extends Formattable> T select(String msg, Collection<T> candidates);
-	Layout getLayout();
-	void setLayout(Layout layout);
-}

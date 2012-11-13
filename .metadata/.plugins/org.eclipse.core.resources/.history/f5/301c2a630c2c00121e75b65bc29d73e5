@@ -1,6 +1,0 @@
-package main;
-
-public interface Appender{
-	Layout getLayout();
-	void setLayout(Layout layout);
-}

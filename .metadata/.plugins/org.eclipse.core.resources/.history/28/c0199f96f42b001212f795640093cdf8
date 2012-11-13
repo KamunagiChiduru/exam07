@@ -1,8 +1,0 @@
-package vendingmachine;
-
-public class InsertCoin implements Operation{
-	@Override
-	public void operate(VendingMachine o){
-		o.intoCoin(null);
-	}
-}

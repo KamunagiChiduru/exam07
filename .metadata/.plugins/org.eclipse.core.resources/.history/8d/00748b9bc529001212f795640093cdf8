@@ -1,9 +1,0 @@
-package guava.immutablecollection;
-
-import org.junit.Test;
-
-public class ImmutableQueueTest{
-	@Test
-	public void ctor(){
-	}
-}

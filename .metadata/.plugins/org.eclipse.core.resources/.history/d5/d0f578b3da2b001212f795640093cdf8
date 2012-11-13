@@ -1,8 +1,0 @@
-package vendingmachine;
-
-public interface Customer {
-	void standUpBysideVendingMachine();
-	void buySomeDrinks();
-	void chooseVendingMachine();
-	void intoCoin();
-}

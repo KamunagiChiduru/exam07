@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testrun name="WalletTest" project="threading" tests="2" started="2" failures="0" errors="0" ignored="0">
-  <testsuite name="simulator.currency.WalletTest" time="0.001">
-    <testcase name="add_Coin" classname="simulator.currency.WalletTest" time="0.001"/>
-    <testcase name="getTotalAmount" classname="simulator.currency.WalletTest" time="0.0"/>
-  </testsuite>
-</testrun>

@@ -1,8 +1,0 @@
-package vendingmachine;
-
-public class BuyIt implements Operation{
-	@Override
-	public void operate(VendingMachine o){
-		o.buyIt();
-	}
-}
