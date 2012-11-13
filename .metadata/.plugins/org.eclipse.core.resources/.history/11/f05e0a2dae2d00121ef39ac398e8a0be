@@ -1,0 +1,37 @@
+package simulator.currency;
+
+import java.util.Collection;
+
+import simulator.util.Yen;
+
+public final class Coins{
+	private Coins(){}
+	
+	public static Collection<Coin> getOneOfEach(){
+		return null;
+	}
+	
+	public static Coin oneYenCoin(){
+		return new Coin(Yen.one());
+	}
+	
+	public static Coin fiveYenCoin(){
+		return new Coin(Yen.five());
+	}
+	
+	public static Coin tenYenCoin(){
+		return new Coin(Yen.ten());
+	}
+	
+	public static Coin fiftyYenCoin(){
+		return new Coin(Yen.fifty());
+	}
+	
+	public static Coin oneHundredYenCoin(){
+		return new Coin(Yen.oneHundred());
+	}
+	
+	public static Coin fiveHundredYenCoin(){
+		return new Coin(Yen.fiveHundred());
+	}
+}

@@ -1,0 +1,30 @@
+package simulator.currency;
+
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class WalletTest{
+	private Wallet obj;
+	
+	@Test
+	public void add_Coin(){
+		assertTrue(this.obj.isEmpty());
+		
+		this.obj.add(Coins.oneYenCoin());
+		
+		assertEquals(1, this.obj.size());
+	}
+	
+	@Before
+	public void setup(){
+		this.obj= new Wallet();
+	}
+	
+	@After
+	public void teardown(){
+		this.obj= null;
+	}
+}

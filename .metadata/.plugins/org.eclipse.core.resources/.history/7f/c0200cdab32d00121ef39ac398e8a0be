@@ -1,0 +1,21 @@
+package simulator.currency;
+
+import simulator.io.Formattable;
+import simulator.util.Yen;
+
+public class Coin implements Formattable{
+	private final Yen amt;
+	
+	Coin(Yen amt){
+		this.amt= amt;
+	}
+
+	@Override
+	public String getDisplayText(){
+		return String.format("%d円", this.amt);
+	}
+	
+	public Yen getAmount(){
+		return this.amt;
+	}
+}

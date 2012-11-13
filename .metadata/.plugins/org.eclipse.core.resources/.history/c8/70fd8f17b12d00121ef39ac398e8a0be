@@ -1,0 +1,47 @@
+package simulator.currency;
+
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Iterator;
+
+import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multisets;
+
+public class Wallet extends AbstractCollection<Coin>{
+	private final Multiset<Coin> impl= HashMultiset.create();
+	
+	public Wallet(){
+	}
+	
+	@Override
+	public boolean add(Coin e){
+		return this.impl.add(e);
+	}
+	
+	@Override
+	public boolean addAll(Collection<? extends Coin> c){
+		return this.impl.addAll(c);
+	}
+	
+	@Override
+	public boolean remove(Object o){
+		return this.impl.remove(o);
+	}
+	
+	@Override
+	public boolean removeAll(Collection<?> c){
+		return this.impl.removeAll(c);
+	}
+	
+	@Override
+	public Iterator<Coin> iterator(){
+		return this.impl.iterator();
+	}
+
+	@Override
+	public int size(){
+		return this.impl.size();
+	}
+}

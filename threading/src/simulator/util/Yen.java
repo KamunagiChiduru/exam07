@@ -1,9 +1,67 @@
 package simulator.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.math.BigInteger;
 
 public final class Yen implements Comparable<Yen>{
 	private final BigInteger amount;
+	
+	public static Yen zero(){
+		return new Yen(0);
+	}
+	
+	public static Yen one(){
+		return new Yen(1);
+	}
+	
+	public static Yen five(){
+		return new Yen(5);
+	}
+	
+	public static Yen ten(){
+		return new Yen(10);
+	}
+	
+	public static Yen fifty(){
+		return new Yen(50);
+	}
+	
+	public static Yen oneHundred(){
+		return new Yen(100);
+	}
+	
+	public static Yen fiveHundred(){
+		return new Yen(500);
+	}
+	
+	public static Yen oneThousand(){
+		return new Yen(1000);
+	}
+	
+	public static Yen twoThousand(){
+		return new Yen(2000);
+	}
+	
+	public static Yen fiveThousand(){
+		return new Yen(5000);
+	}
+	
+	public static Yen tenThousand(){
+		return new Yen(10000);
+	}
+	
+	public static Yen of(int amount){
+		return new Yen(amount);
+	}
+	
+	public static Yen of(long amount){
+		return new Yen(amount);
+	}
+	
+	public static Yen of(String amount) throws NullPointerException{
+		return new Yen(amount);
+	}
 	
 	public Yen(int amount){
 		this.amount= BigInteger.valueOf(amount);
@@ -13,39 +71,27 @@ public final class Yen implements Comparable<Yen>{
 		this.amount= BigInteger.valueOf(amount);
 	}
 	
-	public Yen(String amount){
-		this.amount= new BigInteger(amount);
+	public Yen(String amount) throws NullPointerException, NumberFormatException{
+		this.amount= new BigInteger(checkNotNull(amount));
 	}
 	
-	Yen(BigInteger amount){
-		this.amount= amount;
+	Yen(BigInteger amount) throws NullPointerException{
+		this.amount= checkNotNull(amount);
 	}
 	
-	public static Yen zero(){
-		return new Yen(0);
+	public Yen add(Yen rhs) throws NullPointerException{
+		return new Yen(this.amount.add(checkNotNull(rhs).amount));
 	}
 	
-	public int intValue(){
-		return this.amount.intValue();
-	}
-	
-	public long longValue(){
-		return this.amount.longValue();
-	}
-	
-	public Yen add(Yen rhs){
-		return new Yen(this.amount.add(rhs.amount));
-	}
-	
-	public Yen subtract(Yen rhs){
-		return new Yen(this.amount.subtract(rhs.amount));
+	public Yen subtract(Yen rhs) throws NullPointerException{
+		return new Yen(this.amount.subtract(checkNotNull(rhs).amount));
 	}
 	
 	@Override
-	public int compareTo(Yen o){
-		return this.amount.compareTo(o.amount);
+	public int compareTo(Yen o) throws NullPointerException{
+		return this.amount.compareTo(checkNotNull(o).amount);
 	}
-
+	
 	@Override
 	public int hashCode(){
 		final int prime= 31;
@@ -53,7 +99,7 @@ public final class Yen implements Comparable<Yen>{
 		result= prime * result + ((amount == null) ? 0 : amount.hashCode());
 		return result;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj){
 		if(this == obj) return true;
@@ -66,7 +112,7 @@ public final class Yen implements Comparable<Yen>{
 		else if( !amount.equals(other.amount)) return false;
 		return true;
 	}
-
+	
 	@Override
 	public String toString(){
 		return this.amount.toString(10);

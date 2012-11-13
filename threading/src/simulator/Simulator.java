@@ -5,8 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
-
 import simulator.customer.Customer;
 import simulator.io.Appender;
 import simulator.io.ConsoleAppender;

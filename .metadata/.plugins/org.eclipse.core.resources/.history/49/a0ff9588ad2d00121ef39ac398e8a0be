@@ -1,0 +1,15 @@
+package simulator.currency;
+
+import java.util.Collection;
+
+public final class Coins{
+	private Coins(){}
+	
+	public static Collection<Coin> getOneOfEach(){
+		return null;
+	}
+	
+	public static Coin oneYenCoin(){
+		return null;
+	}
+}

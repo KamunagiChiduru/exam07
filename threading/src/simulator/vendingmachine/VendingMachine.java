@@ -4,18 +4,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Queue;
-import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import simulator.currency.Coin;
+import simulator.currency.Coins;
+import simulator.currency.Wallet;
 import simulator.customer.Customer;
 import simulator.io.Appender;
 import simulator.io.Formattable;
 import simulator.product.Product;
 import simulator.util.Yen;
-
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
@@ -27,10 +27,11 @@ import com.google.common.collect.Queues;
 public class VendingMachine implements Callable<Customer>{
 	private final Appender appender;
 	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
-	private Yen totalAmount= new Yen(0);
+	private final Wallet safeBox;
 	
 	public VendingMachine(Appender appender){
 		this.appender= appender;
+		this.safeBox= new Wallet();
 	}
 	
 	public void comeNewCustomer(Customer newCustomer){
@@ -57,7 +58,7 @@ public class VendingMachine implements Callable<Customer>{
 	}
 	
 	public void pay(Coin coin){
-		this.totalAmount= this.totalAmount.add(coin.getAmount());
+		this.safeBox.add(coin);
 	}
 	
 	/**
@@ -66,15 +67,10 @@ public class VendingMachine implements Callable<Customer>{
 	 * @return
 	 */
 	public Collection<Coin> payback(){
-		SortedSet<Coin> coinSet= ImmutableSortedSet.orderedBy(new Comparator<Coin>(){
-			@Override
-			public int compare(Coin o1, Coin o2){
-				return -o1.getAmount().compareTo(o2.getAmount());
-			}
-		}).add(Coin.TEN, Coin.FIFTY, Coin.HUNDRED, Coin.FIVE_HUNDRED).build();
+		ImmutableList<Coin> coinSet= Coins.getOneOfEach();
 		Collection<Coin> payback= Lists.newArrayList();
 		
-		Yen remain= this.totalAmount;
+		Yen remain= this.safeBox.getTotalAmount();
 		for(Coin coin : coinSet){
 			while(remain.compareTo(coin.getAmount()) >= 0){
 				remain= remain.subtract(coin.getAmount());
@@ -84,6 +80,7 @@ public class VendingMachine implements Callable<Customer>{
 				payback.add(coin);
 				
 				if(remain.compareTo(Yen.zero()) == 0){
+					this.safeBox.clear();
 					this.appender.writeln(this.formatPayback(payback));
 					return payback;
 				}
@@ -92,7 +89,6 @@ public class VendingMachine implements Callable<Customer>{
 		
 		// おつりなし
 		this.appender.writeln("現在0円なので、返却するコインはありません。");
-		
 		return Collections.emptyList();
 	}
 	
@@ -101,7 +97,7 @@ public class VendingMachine implements Callable<Customer>{
 		ImmutableSortedSet<Coin> kinds= ImmutableSortedSet.orderedBy(new Comparator<Coin>(){
 			@Override
 			public int compare(Coin o1, Coin o2){
-				return o1.compareTo(o2);
+				return o1.getAmount().compareTo(o2.getAmount());
 			}
 		}).addAll(payback).build();
 		// コインの枚数
@@ -127,7 +123,7 @@ public class VendingMachine implements Callable<Customer>{
 	}
 	
 	public Yen getTotalAmount(){
-		return this.totalAmount;
+		return this.safeBox.getTotalAmount();
 	}
 	
 	/**
@@ -170,16 +166,11 @@ public class VendingMachine implements Callable<Customer>{
 		SELECT_COIN{
 			@Override
 			Operation perform(Customer customer){
-				ImmutableList<Coin> coinList= ImmutableList.of( //
-						Coin.TEN, //
-						Coin.FIFTY, //
-						Coin.HUNDRED, //
-						Coin.FIVE_HUNDRED //
-						);
+				ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
 				
 				Coin selected= appender.select("入れるコインを選択してください。", coinList);
 				
-				vendingMachine.pay(selected);
+				vendingMachine.pay(customer.pay(selected));
 				appender.writeln("現在%s円入っています。", vendingMachine.getTotalAmount());
 				
 				return SELECT_OPERATION;
