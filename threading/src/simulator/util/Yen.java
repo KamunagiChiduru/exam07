@@ -1,10 +1,14 @@
 package simulator.util;
 
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.util.Formattable;
+import java.util.FormattableFlags;
+import java.util.Formatter;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.math.BigInteger;
-
-public final class Yen implements Comparable<Yen>{
+public final class Yen implements Comparable<Yen>, Formattable{
 	private final BigInteger amount;
 	
 	public static Yen zero(){
@@ -115,6 +119,22 @@ public final class Yen implements Comparable<Yen>{
 	
 	@Override
 	public String toString(){
-		return this.amount.toString(10);
+		return String.format("%#s", this);
+	}
+
+	/**
+	 * TODO: 後で書く
+	 * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+	 */
+	@Override
+	public void formatTo(Formatter formatter, int flags, int width, int precision){
+		StringBuffer buf= new StringBuffer();
+		
+		// '#'つきなら、'円'の文字
+		if((flags & FormattableFlags.ALTERNATE) != 0){
+			buf.append("円");
+		}
+		
+		formatter.format(buf.toString());
 	}
 }
