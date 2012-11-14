@@ -8,12 +8,11 @@ import java.util.concurrent.Future;
 import simulator.customer.Customer;
 import simulator.io.Appender;
 import simulator.io.ConsoleAppender;
-import simulator.io.DefaultLayout;
 import simulator.vendingmachine.VendingMachine;
 
 
 public class Simulator{
-	private static final Appender appender= new ConsoleAppender(new DefaultLayout());
+	private static final Appender appender= new ConsoleAppender();
 	
 	public static void main(String[] args){
 		VendingMachine vendingMachine= new VendingMachine(appender);

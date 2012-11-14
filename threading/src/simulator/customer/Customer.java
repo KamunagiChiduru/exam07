@@ -7,7 +7,6 @@ import simulator.currency.Coins;
 import simulator.currency.Wallet;
 import simulator.io.Appender;
 import simulator.io.ConsoleAppender;
-import simulator.io.DefaultLayout;
 import simulator.product.Product;
 
 import com.google.common.collect.ImmutableSet;
@@ -19,7 +18,7 @@ public class Customer{
 	private final Collection<Product> bucket;
 	
 	public Customer(){
-		this.appender= new ConsoleAppender(new DefaultLayout());
+		this.appender= new ConsoleAppender();
 		this.wallet= new Wallet( //
 				Coins.fiveHundredYenCoin(), // 500円玉が1枚
 				Coins.oneHundredYenCoin(), Coins.oneHundredYenCoin(), // 100円玉が2枚

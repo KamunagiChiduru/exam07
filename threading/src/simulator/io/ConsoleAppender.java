@@ -10,17 +10,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 
 public class ConsoleAppender implements Appender{
-	public ConsoleAppender(DefaultLayout layout){
-		
-	}
-	
-	@Override
-	public Layout getLayout(){
-		return null;
-	}
-	
-	@Override
-	public void setLayout(Layout layout){
+	public ConsoleAppender(){
 		
 	}
 	
@@ -42,7 +32,8 @@ public class ConsoleAppender implements Appender{
 		System.out.println(msg);
 		System.out.print(builder.toString());
 		
-		BufferedReader reader= new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader reader= new BufferedReader(new InputStreamReader(
+				System.in));
 		
 		try{
 			final Range<Integer> validRange= Ranges.closed(1, copyList.size());
@@ -60,12 +51,12 @@ public class ConsoleAppender implements Appender{
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	@Override
 	public void write(String format, Object... params){
 		System.out.print(String.format(format, params));
 	}
-
+	
 	@Override
 	public void writeln(String format, Object... params){
 		System.out.println(String.format(format, params));
