@@ -1,6 +1,7 @@
 package simulator.io;
 
 import java.util.Collection;
+import java.util.Formattable;
 
 public interface Appender{
 	<T extends Formattable> T select(String msg, Collection<T> candidates);

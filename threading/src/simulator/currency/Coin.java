@@ -1,6 +1,8 @@
 package simulator.currency;
 
-import simulator.io.Formattable;
+import java.util.Formattable;
+import java.util.Formatter;
+
 import simulator.util.Yen;
 
 public class Coin implements Formattable{
@@ -10,11 +12,6 @@ public class Coin implements Formattable{
 		this.amt= amt;
 	}
 
-	@Override
-	public String getDisplayText(){
-		return String.format("%s円", this.amt);
-	}
-	
 	public Yen getAmount(){
 		return this.amt;
 	}
@@ -42,6 +39,11 @@ public class Coin implements Formattable{
 	
 	@Override
 	public String toString(){
-		return this.getDisplayText();
+		return String.format("%s", this);
+	}
+
+	@Override
+	public void formatTo(Formatter formatter, int flags, int width, int precision){
+		formatter.format(this.amt.toString());
 	}
 }

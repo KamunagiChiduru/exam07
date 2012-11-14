@@ -1,6 +1,8 @@
 package simulator.product;
 
-import simulator.io.Formattable;
+import java.util.Formattable;
+import java.util.Formatter;
+
 import simulator.util.Yen;
 
 public enum Product implements Formattable{
@@ -15,8 +17,9 @@ public enum Product implements Formattable{
 		this.name= name;
 		this.price= price;
 	}
+	
 	@Override
-	public String getDisplayText(){
-		return String.format("%s%s円", this.name, this.price);
+	public void formatTo(Formatter fmt, int flags, int width, int precision){
+		fmt.format("%s%s円", this.name, this.price);
 	}
 }

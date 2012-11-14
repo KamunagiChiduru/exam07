@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Formattable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -34,7 +35,7 @@ public class ConsoleAppender implements Appender{
 			if(i > 0){
 				builder.append(" ");
 			}
-			builder.append(String.format("%d:%s", i + 1, copyList.get(i).getDisplayText()));
+			builder.append(String.format("%d:%s", i + 1, copyList.get(i)));
 		}
 		builder.append("]");
 		builder.append(">");

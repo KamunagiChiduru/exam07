@@ -3,6 +3,8 @@ package simulator.vendingmachine;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Formattable;
+import java.util.Formatter;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -13,7 +15,6 @@ import simulator.currency.Coins;
 import simulator.currency.Wallet;
 import simulator.customer.Customer;
 import simulator.io.Appender;
-import simulator.io.Formattable;
 import simulator.product.Product;
 import simulator.util.Yen;
 
@@ -118,7 +119,7 @@ public class VendingMachine implements Callable<Customer>{
 		Coin coin= kinds.poll();
 		int count= ncoins.count(coin);
 		
-		return String.format("%s玉%d枚と", coin.getDisplayText(), count)
+		return String.format("%s玉%d枚と", coin, count)
 				+ this.formatPaybackDetails(kinds, ncoins);
 	}
 	
@@ -139,8 +140,8 @@ public class VendingMachine implements Callable<Customer>{
 			}
 			
 			@Override
-			public String getDisplayText(){
-				return "終了";
+			public void formatTo(Formatter fmt, int flags, int width, int precision){
+				fmt.format("終了");
 			}
 		},
 		SELECT_OPERATION{
@@ -159,8 +160,8 @@ public class VendingMachine implements Callable<Customer>{
 			}
 			
 			@Override
-			public String getDisplayText(){
-				return "操作の選択";
+			public void formatTo(Formatter fmt, int flags, int width, int precision){
+				fmt.format("操作の選択");
 			}
 		},
 		SELECT_COIN{
@@ -177,8 +178,8 @@ public class VendingMachine implements Callable<Customer>{
 			}
 			
 			@Override
-			public String getDisplayText(){
-				return "コインを入れる";
+			public void formatTo(Formatter fmt, int flags, int width, int precision){
+				fmt.format("コインを入れる");
 			}
 		},
 		PAYBACK_COIN{
@@ -191,8 +192,8 @@ public class VendingMachine implements Callable<Customer>{
 			}
 			
 			@Override
-			public String getDisplayText(){
-				return "コインを戻す";
+			public void formatTo(Formatter fmt, int flags, int width, int precision){
+				fmt.format("コインを戻す");
 			}
 		},
 		SELECT_PRODUCT{
@@ -206,14 +207,14 @@ public class VendingMachine implements Callable<Customer>{
 						);
 				Product selected= appender.select("商品を選択してください。", productList);
 				
-				appender.writeln("selected -> %s", selected.getDisplayText());
+				appender.writeln("selected -> %s", selected);
 				
 				return PAYBACK_COIN;
 			}
 			
 			@Override
-			public String getDisplayText(){
-				return "買う";
+			public void formatTo(Formatter fmt, int flags, int width, int precision){
+				fmt.format("買う");
 			}
 		},
 		;
