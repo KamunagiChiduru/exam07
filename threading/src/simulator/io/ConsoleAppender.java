@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
-import java.util.Formattable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -26,7 +25,7 @@ public class ConsoleAppender implements Appender{
 	}
 	
 	@Override
-	public <T extends Formattable>T select(String msg, Collection<T> candidates){
+	public <T>T select(String msg, Collection<T> candidates){
 		StringBuilder builder= new StringBuilder();
 		ImmutableList<T> copyList= ImmutableList.copyOf(candidates);
 		
