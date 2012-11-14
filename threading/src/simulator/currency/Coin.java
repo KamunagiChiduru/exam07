@@ -44,6 +44,6 @@ public class Coin implements Formattable{
 
 	@Override
 	public void formatTo(Formatter formatter, int flags, int width, int precision){
-		formatter.format(this.amt.toString());
+		formatter.format("%s円", this.amt);
 	}
 }

@@ -18,8 +18,21 @@ public enum Product implements Formattable{
 		this.price= price;
 	}
 	
+	public String getName(){
+		return this.name;
+	}
+	
+	public Yen getPrice(){
+		return this.price;
+	}
+	
 	@Override
 	public void formatTo(Formatter fmt, int flags, int width, int precision){
-		fmt.format("%s%s円", this.name, this.price);
+		fmt.format("%s %s円", this.name, this.price);
+	}
+	
+	@Override
+	public String toString(){
+		return String.format("%s", this);
 	}
 }
