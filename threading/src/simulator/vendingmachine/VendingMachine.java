@@ -1,8 +1,9 @@
 package simulator.vendingmachine;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.Queue;
@@ -18,6 +19,7 @@ import simulator.io.Appender;
 import simulator.product.Product;
 import simulator.util.Yen;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSortedSet;
@@ -28,10 +30,12 @@ import com.google.common.collect.Queues;
 public class VendingMachine implements Callable<Customer>{
 	private final Appender appender;
 	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
+	private final Wallet coinPool;
 	private final Wallet safeBox;
 	
 	public VendingMachine(Appender appender){
 		this.appender= appender;
+		this.coinPool= new Wallet();
 		this.safeBox= new Wallet();
 	}
 	
@@ -48,18 +52,21 @@ public class VendingMachine implements Callable<Customer>{
 	public Customer call() throws Exception{
 		Customer customer= this.customerQueue.take();
 		
-		Operation op= Operation.SELECT_OPERATION;
-		while(op != Operation.EXIT_OPERATION){
-			op.setAppender(appender);
-			op.setVendingMachine(this);
+		Operation op= new SelectOperation();
+		while(op != null){
 			op= op.perform(customer);
 		}
 		
 		return customer;
 	}
 	
-	public void pay(Coin coin){
-		this.safeBox.add(coin);
+	public void putInto(Coin coin){
+		this.coinPool.add(coin);
+	}
+	
+	public Product sell(Product product){
+		// XXX: 在庫を気にしないで良いので、そのまま返す
+		return product;
 	}
 	
 	/**
@@ -68,10 +75,14 @@ public class VendingMachine implements Callable<Customer>{
 	 * @return
 	 */
 	public Collection<Coin> payback(){
-		ImmutableList<Coin> coinSet= Coins.getOneOfEach();
+		// 金額の高い順にコインを1種類ずつ保持
+		ImmutableSortedSet<Coin> coinSet= ImmutableSortedSet.copyOf( //
+				Coins.descComparator(), //
+				Coins.getOneOfEach() //
+				);
 		Collection<Coin> payback= Lists.newArrayList();
 		
-		Yen remain= this.safeBox.getTotalAmount();
+		Yen remain= this.coinPool.getTotalAmount();
 		for(Coin coin : coinSet){
 			while(remain.compareTo(coin.getAmount()) >= 0){
 				remain= remain.subtract(coin.getAmount());
@@ -81,7 +92,7 @@ public class VendingMachine implements Callable<Customer>{
 				payback.add(coin);
 				
 				if(remain.compareTo(Yen.zero()) == 0){
-					this.safeBox.clear();
+					this.coinPool.clear();
 					this.appender.writeln(this.formatPayback(payback));
 					return payback;
 				}
@@ -95,12 +106,7 @@ public class VendingMachine implements Callable<Customer>{
 	
 	private String formatPayback(Collection<Coin> payback){
 		// コインの種類
-		ImmutableSortedSet<Coin> kinds= ImmutableSortedSet.orderedBy(new Comparator<Coin>(){
-			@Override
-			public int compare(Coin o1, Coin o2){
-				return o1.getAmount().compareTo(o2.getAmount());
-			}
-		}).addAll(payback).build();
+		ImmutableSortedSet<Coin> kinds= ImmutableSortedSet.copyOf(Coins.descComparator(), payback);
 		// コインの枚数
 		ImmutableMultiset<Coin> ncoins= ImmutableMultiset.copyOf(payback);
 		// 合計金額
@@ -124,112 +130,158 @@ public class VendingMachine implements Callable<Customer>{
 	}
 	
 	public Yen getTotalAmount(){
-		return this.safeBox.getTotalAmount();
+		return this.coinPool.getTotalAmount();
 	}
 	
-	/**
-	 * 操作
-	 * 
-	 * @author kamichidu
-	 */
-	private enum Operation implements Formattable{
-		EXIT_OPERATION{
-			@Override
-			Operation perform(Customer customer){
-				return null;
-			}
-			
-			@Override
-			public void formatTo(Formatter fmt, int flags, int width, int precision){
-				fmt.format("終了");
-			}
-		},
-		SELECT_OPERATION{
-			@Override
-			Operation perform(Customer customer){
-				ImmutableList<Operation> operationList= ImmutableList.of( //
-						SELECT_COIN, //
-						SELECT_PRODUCT, //
-						PAYBACK_COIN, //
-						EXIT_OPERATION //
-						);
-				
-				Operation selected= appender.select("操作を選択してください。", operationList);
-				
-				return selected;
-			}
-			
-			@Override
-			public void formatTo(Formatter fmt, int flags, int width, int precision){
-				fmt.format("操作の選択");
-			}
-		},
-		SELECT_COIN{
-			@Override
-			Operation perform(Customer customer){
-				ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
-				
-				Coin selected= appender.select("入れるコインを選択してください。", coinList);
-				
-				vendingMachine.pay(customer.pay(selected));
-				appender.writeln("現在%s円入っています。", vendingMachine.getTotalAmount());
-				
-				return SELECT_OPERATION;
-			}
-			
-			@Override
-			public void formatTo(Formatter fmt, int flags, int width, int precision){
-				fmt.format("コインを入れる");
-			}
-		},
-		PAYBACK_COIN{
-			@Override
-			Operation perform(Customer customer){
-				// コインの枚数が最小となるようにおつりを出す
-				customer.giveCoins(vendingMachine.payback());
-				
-				return EXIT_OPERATION;
-			}
-			
-			@Override
-			public void formatTo(Formatter fmt, int flags, int width, int precision){
-				fmt.format("コインを戻す");
-			}
-		},
-		SELECT_PRODUCT{
-			@Override
-			Operation perform(Customer customer){
-				ImmutableList<Product> productList= ImmutableList.of( //
-						Product.COFFEE, //
-						Product.BOTTLE_COLA, //
-						Product.ENERGY_DRINK, //
-						Product.TEE_OF_TOKUHO //
-						);
-				Product selected= appender.select("商品を選択してください。", productList);
-				
-				appender.writeln("selected -> %s", selected);
-				
-				return PAYBACK_COIN;
-			}
-			
-			@Override
-			public void formatTo(Formatter fmt, int flags, int width, int precision){
-				fmt.format("買う");
-			}
-		},
-		;
+	private static interface Operation extends Formattable{
+		Operation perform(Customer customer);
+	}
+	
+	private class Exit implements Operation{
+		private final Operation beforeExit;
 		
-		abstract Operation perform(Customer customer);
-		
-		VendingMachine vendingMachine;
-		Appender appender;
-		
-		void setAppender(Appender appender){
-			this.appender= appender;
+		Exit(){
+			this.beforeExit= null;
 		}
 		
-		void setVendingMachine(VendingMachine vendingMachine){
-			this.vendingMachine= vendingMachine;
+		Exit(Operation performBeforeExit){
+			this.beforeExit= performBeforeExit;
+		}
+		
+		@Override
+		public Operation perform(Customer customer){
+			// 終了前に呼ぶ操作が指定されていたときには、操作を呼んでから終了する
+			if(this.beforeExit != null){
+				this.beforeExit.perform(customer);
+			}
+			return null;
+		}
+		
+		@Override
+		public void formatTo(Formatter fmt, int flags, int width, int precision){
+			fmt.format("終了");
+		}
+	}
+	
+	private class SelectOperation implements Operation{
+		@Override
+		public Operation perform(Customer customer){
+			ImmutableList<Operation> operationList= ImmutableList.of( //
+					new SelectCoin(), //
+					new SelectProduct(), //
+					new Payback(this), //
+					new Exit(new Payback()) //
+					);
+			
+			Operation selected= appender.select("操作を選択してください。", operationList);
+			
+			return selected;
+		}
+		
+		@Override
+		public void formatTo(Formatter fmt, int flags, int width, int precision){
+			fmt.format("操作の選択");
+		}
+	}
+	
+	private class SelectCoin implements Operation{
+		@Override
+		public Operation perform(Customer customer){
+			ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
+			
+			Coin selected= appender.select("入れるコインを選択してください。", coinList);
+			
+			putInto(customer.pay(selected));
+			appender.writeln("現在%s円入っています。", getTotalAmount());
+			
+			return new SelectOperation();
+		}
+		
+		@Override
+		public void formatTo(Formatter fmt, int flags, int width, int precision){
+			fmt.format("コインを入れる");
+		}
+	}
+	
+	private class Payback implements Operation{
+		private final Operation nextOperation;
+		
+		Payback(){
+			// おつりを出したら、その後は終了がデフォルト
+			this.nextOperation= new Exit();
+		}
+		
+		Payback(Operation nextOperation){
+			this.nextOperation= nextOperation;
+		}
+		
+		@Override
+		public Operation perform(Customer customer){
+			// コインの枚数が最小となるようにおつりを出す
+			customer.giveCoins(payback());
+			
+			return this.nextOperation;
+		}
+		
+		@Override
+		public void formatTo(Formatter fmt, int flags, int width, int precision){
+			fmt.format("コインを戻す");
+		}
+	}
+	
+	private class SelectProduct implements Operation{
+		@Override
+		public Operation perform(Customer customer){
+			ImmutableList<Product> productList= ImmutableList.of( //
+					Product.COFFEE, //
+					Product.BOTTLE_COLA, //
+					Product.ENERGY_DRINK, //
+					Product.TEE_OF_TOKUHO //
+					);
+			Product selected= appender.select("商品を選択してください。", productList);
+			
+			// 売ることができない場合
+			if( !this.canSellIt(selected)){
+				appender.writeln("現在の投入金額は%#sなので、%#sの商品はお売りできません。", //
+						coinPool.getTotalAmount(), //
+						selected.getPrice() //
+				);
+				return new SelectOperation();
+			}
+			
+			// 取引が成立したので、商品価格分を金庫にしまう
+			this.move(safeBox, coinPool, selected.getPrice());
+			customer.buy(sell(selected));
+			
+			return new Payback(new SelectOperation());
+		}
+		
+		private void move(Wallet dest, Wallet src, Yen moveAmount){
+			final Yen preAmount= dest.getTotalAmount().add(src.getTotalAmount());
+			
+			// FIXME: 投入金額からお金を崩して、moveAmountちょうどの金額ができるようにする
+			
+			final Yen postAmount= dest.getTotalAmount().add(src.getTotalAmount());
+			checkState( //
+					preAmount.compareTo(postAmount) == 0, //
+					"投入金額から%#sを金庫にしまった結果、%#sから%#sに投入金額と金庫の金額の合計値が変化しました。", //
+					moveAmount, preAmount, postAmount //
+			);
+		}
+		
+		private ImmutableCollection<Coin> exchange(Coin orig, Coin want){
+			// FIXME: payback()のアルゴリズムを使って、両替する
+			return ImmutableList.of(orig);
+		}
+		
+		private boolean canSellIt(Product product){
+			// 購入可能条件: 投入金額 >= 商品価格
+			return coinPool.getTotalAmount().compareTo(product.getPrice()) >= 0;
+		}
+		
+		@Override
+		public void formatTo(Formatter fmt, int flags, int width, int precision){
+			fmt.format("買う");
 		}
 	}
 }

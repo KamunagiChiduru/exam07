@@ -1,5 +1,7 @@
 package simulator.currency;
 
+import java.util.Comparator;
+
 import simulator.util.Yen;
 
 import com.google.common.collect.ImmutableList;
@@ -40,5 +42,13 @@ public final class Coins{
 	
 	public static Coin fiveHundredYenCoin(){
 		return new Coin(Yen.fiveHundred());
+	}
+	
+	public static Comparator<Coin> descComparator(){
+		return new Comparator<Coin>(){
+			@Override
+			public int compare(Coin lhs, Coin rhs){
+				return -lhs.compareTo(rhs);
+			}};
 	}
 }

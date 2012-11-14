@@ -1,6 +1,9 @@
 package simulator.customer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
+import java.util.Queue;
 
 import simulator.currency.Coin;
 import simulator.currency.Coins;
@@ -9,13 +12,16 @@ import simulator.io.Appender;
 import simulator.io.ConsoleAppender;
 import simulator.product.Product;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Queues;
 
 public class Customer{
 	private final Appender appender;
 	private final Wallet wallet;
-	private final Collection<Product> bucket;
+	private final Multiset<Product> bucket;
 	
 	public Customer(){
 		this.appender= new ConsoleAppender();
@@ -24,8 +30,9 @@ public class Customer{
 				Coins.oneHundredYenCoin(), Coins.oneHundredYenCoin(), // 100円玉が2枚
 				Coins.fiftyYenCoin(), // 50円玉が1枚
 				Coins.tenYenCoin(), Coins.tenYenCoin(), Coins.tenYenCoin() // 10円玉が3枚
-				);
-		this.bucket= Lists.newArrayList();
+		);
+		this.bucket= HashMultiset.create();
+		;
 	}
 	
 	public ImmutableSet<Coin> getUniqueCoinSet(){
@@ -36,26 +43,34 @@ public class Customer{
 		return this.wallet.get(paied);
 	}
 	
+	public void buy(Product bought){
+		this.bucket.add(checkNotNull(bought));
+	}
+	
 	public void giveCoins(Collection<Coin> coins){
-		System.out.println("giveCoins " + coins);
+		this.wallet.addAll(checkNotNull(coins));
 	}
 	
 	public void showResult(Appender appender){
-		this.appender.writeln("〜お買いもの結果〜");
+		StringBuffer buf= new StringBuffer();
+		
+		buf.append("〜お買いもの結果〜%n");
 		
 		if(this.bucket.isEmpty()){
-			this.appender.writeln("あなたは何も買っていません。");
+			buf.append("あなたは何も買っていません。%n");
 		}
 		else{
-			this.appender.writeln("あなたは%sを持っています。", this.formatBoughtProducts());
+			buf.append(String.format("あなたは%sを持っています。%n", this.formatBoughtProducts()));
 		}
 		
 		if(this.wallet.isEmpty()){
-			this.appender.writeln("あなたのお財布の中には何もありません。");
+			buf.append("あなたのお財布の中には何もありません。%n");
 		}
 		else{
-			this.appender.writeln("あなたのお財布の中には%sあります。", this.formatWallet());
+			buf.append(String.format("あなたのお財布の中には%sあります。%n", this.formatWallet()));
 		}
+		
+		this.appender.write(buf.toString());
 	}
 	
 	private String formatBoughtProducts(){
@@ -63,6 +78,18 @@ public class Customer{
 	}
 	
 	private String formatWallet(){
-		return "piyopiyo";
+		ImmutableSortedSet<Coin> descUniqueCoins= ImmutableSortedSet.copyOf( //
+				Coins.descComparator(), //
+				this.wallet.getUniqueCoinSet() //
+				);
+		return this.formatWallet(Queues.newPriorityQueue(descUniqueCoins));
+	}
+	
+	private String formatWallet(Queue<Coin> kinds){
+		if(kinds.isEmpty()){ return ""; }
+		
+		Coin coin= kinds.poll();
+		
+		return String.format("%sが%d枚、%s", coin, this.wallet.count(coin), this.formatWallet(kinds));
 	}
 }

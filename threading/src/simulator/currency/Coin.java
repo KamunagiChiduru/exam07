@@ -5,7 +5,7 @@ import java.util.Formatter;
 
 import simulator.util.Yen;
 
-public class Coin implements Formattable{
+public class Coin implements Comparable<Coin>, Formattable{
 	private final Yen amt;
 	
 	Coin(Yen amt){
@@ -45,5 +45,10 @@ public class Coin implements Formattable{
 	@Override
 	public void formatTo(Formatter formatter, int flags, int width, int precision){
 		formatter.format("%s円", this.amt);
+	}
+
+	@Override
+	public int compareTo(Coin o){
+		return this.amt.compareTo(o.amt);
 	}
 }

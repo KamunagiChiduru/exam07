@@ -10,9 +10,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 
 public class ConsoleAppender implements Appender{
-	public ConsoleAppender(){
-		
-	}
+	public ConsoleAppender(){}
 	
 	@Override
 	public <T>T select(String msg, Collection<T> candidates){
@@ -36,7 +34,7 @@ public class ConsoleAppender implements Appender{
 				System.in));
 		
 		try{
-			final Range<Integer> validRange= Ranges.closed(1, copyList.size());
+			Range<Integer> validRange= Ranges.closed(1, copyList.size());
 			Integer parseInput;
 			
 			do{

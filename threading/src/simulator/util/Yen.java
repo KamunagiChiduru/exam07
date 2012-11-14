@@ -130,6 +130,7 @@ public final class Yen implements Comparable<Yen>, Formattable{
 	public void formatTo(Formatter formatter, int flags, int width, int precision){
 		StringBuffer buf= new StringBuffer();
 		
+		buf.append(this.amount.toString(10));
 		// '#'つきなら、'円'の文字
 		if((flags & FormattableFlags.ALTERNATE) != 0){
 			buf.append("円");
