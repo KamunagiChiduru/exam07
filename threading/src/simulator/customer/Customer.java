@@ -1,15 +1,13 @@
 package simulator.customer;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Collection;
 import java.util.Queue;
 
 import simulator.currency.Coin;
 import simulator.currency.Coins;
 import simulator.currency.Wallet;
-import simulator.io.IOManager;
 import simulator.io.ConsoleIOManager;
+import simulator.io.IOManager;
 import simulator.product.Drink;
 
 import com.google.common.collect.HashMultiset;
@@ -17,6 +15,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Customer{
 	private final IOManager appender;
@@ -51,7 +51,15 @@ public class Customer{
 		this.wallet.addAll(checkNotNull(coins));
 	}
 	
-	public void showResult(IOManager appender){
+	public boolean hasCoin(){
+		return !this.wallet.isEmpty();
+	}
+	
+	public IOManager getIOManager(){
+		return this.appender;
+	}
+	
+	public void showResult(){
 		StringBuffer buf= new StringBuffer();
 		
 		buf.append("〜お買いもの結果〜%n");
