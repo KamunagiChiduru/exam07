@@ -1,14 +1,18 @@
 package simulator.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 import java.util.Formattable;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public final class Yen implements Comparable<Yen>, Formattable{
+	private static interface Message{
+		String TO_STRING_FORMAT= "%#s";
+		String YEN= "円";
+	}
+	
 	private final BigInteger amount;
 	
 	public static Yen zero(){
@@ -106,34 +110,36 @@ public final class Yen implements Comparable<Yen>, Formattable{
 	
 	@Override
 	public boolean equals(Object obj){
-		if(this == obj) return true;
-		if(obj == null) return false;
-		if(getClass() != obj.getClass()) return false;
+		if(this == obj){ return true; }
+		if(obj == null){ return false; }
+		if(getClass() != obj.getClass()){ return false; }
 		Yen other= (Yen)obj;
 		if(amount == null){
-			if(other.amount != null) return false;
+			if(other.amount != null){ return false; }
 		}
-		else if( !amount.equals(other.amount)) return false;
+		else if( !amount.equals(other.amount)){ return false; }
 		return true;
 	}
 	
 	@Override
 	public String toString(){
-		return String.format("%#s", this);
+		return String.format(Message.TO_STRING_FORMAT, this);
 	}
-
+	
 	/**
 	 * TODO: 後で書く
+	 * 
 	 * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
 	 */
 	@Override
 	public void formatTo(Formatter formatter, int flags, int width, int precision){
 		StringBuffer buf= new StringBuffer();
 		
-		buf.append(this.amount.toString(10));
+		final int decimalRadix= 10;
+		buf.append(this.amount.toString(decimalRadix));
 		// '#'つきなら、'円'の文字
 		if((flags & FormattableFlags.ALTERNATE) != 0){
-			buf.append("円");
+			buf.append(Message.YEN);
 		}
 		
 		formatter.format(buf.toString());

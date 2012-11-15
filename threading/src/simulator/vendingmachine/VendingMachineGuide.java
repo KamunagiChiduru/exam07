@@ -10,6 +10,10 @@ import simulator.customer.Customer;
 import com.google.common.collect.ImmutableList;
 
 public class VendingMachineGuide{
+	private static interface Message{
+		String PLEASE_SELECT_VENDING_MACHINE= "自動販売機を選んでください。";
+	}
+	
 	public VendingMachineGuide(){}
 	
 	public void comeNewCustomer(Customer newCustomer){
@@ -23,8 +27,8 @@ public class VendingMachineGuide{
 		
 		try{
 			while(true){
-				VendingMachine<?> selected= newCustomer.getIOManager().select("選べ、自販機を。",
-						machineList);
+				VendingMachine<?> selected= newCustomer.getIOManager() //
+						.select(Message.PLEASE_SELECT_VENDING_MACHINE, machineList);
 				
 				if(selected == ReturnTicketVendingMachine.INSTANCE){
 					break;

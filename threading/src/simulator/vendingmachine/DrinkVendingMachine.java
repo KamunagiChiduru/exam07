@@ -1,5 +1,8 @@
 package simulator.vendingmachine;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Formattable;
@@ -16,6 +19,7 @@ import simulator.io.IOManager;
 import simulator.product.Drink;
 import simulator.util.Yen;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
@@ -24,17 +28,34 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 public class DrinkVendingMachine implements VendingMachine<Drink>{
-	private final IOManager appender;
+	private static interface Message{
+		String THIS_NAME= "ドリンク";
+		String TO_STRING_FORMAT= "%s";
+		String NO_PAYBACK_COINS= "現在0円なので、返却するコインはありません。";
+		String PAYBACK_FORMAT= "%s円の返却です。%sを返却します。";
+		String PAYBACK_COIN_FORMAT= "%s玉%d枚";
+		String PAYBACK_SEPARATOR= "と";
+		String EXIT_OPERATION_NAME= "終了";
+		String PLEASE_SELECT_OPERATION= "操作を選択してください。";
+		String SELECT_OPERATION_NAME= "操作の選択";
+		String YOU_HAVE_NO_MONEY= "あなたはお金を持っていません。";
+		String PLEASE_SELECT_COIN= "入れるコインを選択してください。";
+		String CURRENT_MONEY= "現在%s円入っています。";
+		String SELECT_COIN_NAME= "コインを入れる";
+		String PAYBACK_COIN_NAME= "コインを戻す";
+		String PLEASE_SELECT_PRODUCT= "商品を選択してください。";
+		String I_CANT_SELL_ITS_PRODUCT= "現在の投入金額は%#sなので、%#sの商品はお売りできません。";
+		String SELECT_PRODUCT_NAME= "買う";
+	}
+	
+	private final IOManager io;
 	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
 	private final Wallet coinPool;
 	private final Wallet safeBox;
 	
 	public DrinkVendingMachine(IOManager appender){
-		this.appender= appender;
+		this.io= appender;
 		this.coinPool= new Wallet();
 		this.safeBox= new Wallet();
 	}
@@ -102,14 +123,14 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 				
 				if(remain.compareTo(Yen.zero()) == 0){
 					this.coinPool.clear();
-					this.appender.writeln(this.formatPayback(payback));
+					this.io.writeln(this.formatPayback(payback));
 					return payback;
 				}
 			}
 		}
 		
 		// おつりなし
-		this.appender.writeln("現在0円なので、返却するコインはありません。");
+		this.io.writeln(Message.NO_PAYBACK_COINS);
 		return Collections.emptyList();
 	}
 	
@@ -124,18 +145,19 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 			total= total.add(coin.getAmount());
 		}
 		// 高い順に表示
-		return String.format("%s円の返却です。%sを返却します。", total,
+		return String.format(Message.PAYBACK_FORMAT, total,
 				this.formatPaybackDetails(Queues.newPriorityQueue(kinds), ncoins));
 	}
 	
 	private String formatPaybackDetails(Queue<Coin> kinds, Multiset<Coin> ncoins){
-		if(kinds.isEmpty()){ return ""; }
+		if(kinds.isEmpty()){ return null; }
 		
 		Coin coin= kinds.poll();
-		int count= ncoins.count(coin);
+		String formatted= String.format(Message.PAYBACK_COIN_FORMAT, coin, ncoins.count(coin));
 		
-		return String.format("%s玉%d枚と", coin, count)
-				+ this.formatPaybackDetails(kinds, ncoins);
+		Joiner joiner= Joiner.on(Message.PAYBACK_SEPARATOR).skipNulls();
+		
+		return joiner.join(formatted, this.formatPaybackDetails(kinds, ncoins));
 	}
 	
 	/**
@@ -153,12 +175,12 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 	
 	@Override
 	public void formatTo(Formatter formatter, int flags, int width, int precision){
-		formatter.format("ドリンク");
+		formatter.format(Message.THIS_NAME);
 	}
 	
 	@Override
 	public String toString(){
-		return String.format("%s", this);
+		return String.format(Message.TO_STRING_FORMAT, this);
 	}
 	
 	/**
@@ -205,7 +227,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		@Override
 		public void formatTo(Formatter fmt, int flags, int width, int precision){
-			fmt.format("終了");
+			fmt.format(Message.EXIT_OPERATION_NAME);
 		}
 	}
 	
@@ -220,15 +242,14 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 					new Exit(new Payback()) //
 					);
 			
-			Operation selected= appender.select("操作を選択してください。",
-					operationList);
+			Operation selected= io.select(Message.PLEASE_SELECT_OPERATION, operationList);
 			
 			return selected;
 		}
 		
 		@Override
 		public void formatTo(Formatter fmt, int flags, int width, int precision){
-			fmt.format("操作の選択");
+			fmt.format(Message.SELECT_OPERATION_NAME);
 		}
 	}
 	
@@ -239,24 +260,27 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 			
 			// お客さんがコインを持っていない場合
 			if( !customer.hasCoin()){
-				appender.writeln("あなたはお金を持っていません。");
+				io.writeln(Message.YOU_HAVE_NO_MONEY);
 				
 				return new SelectOperation();
 			}
 			
-			ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
+			ImmutableSortedSet<Coin> coinList= ImmutableSortedSet.copyOf( //
+					Coins.descComparator(), //
+					customer.getUniqueCoinSet() //
+					);
 			
-			Coin selected= appender.select("入れるコインを選択してください。", coinList);
+			Coin selected= io.select(Message.PLEASE_SELECT_COIN, coinList);
 			
 			putInto(customer.pay(selected));
-			appender.writeln("現在%s円入っています。", getTotalAmount());
+			io.writeln(Message.CURRENT_MONEY, getTotalAmount());
 			
 			return new SelectOperation();
 		}
 		
 		@Override
 		public void formatTo(Formatter fmt, int flags, int width, int precision){
-			fmt.format("コインを入れる");
+			fmt.format(Message.SELECT_COIN_NAME);
 		}
 	}
 	
@@ -283,7 +307,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		@Override
 		public void formatTo(Formatter fmt, int flags, int width, int precision){
-			fmt.format("コインを戻す");
+			fmt.format(Message.PAYBACK_COIN_NAME);
 		}
 	}
 	
@@ -297,11 +321,11 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 					Drink.ENERGY_DRINK, //
 					Drink.TEE_OF_TOKUHO //
 					);
-			Drink selected= appender.select("商品を選択してください。", productList);
+			Drink selected= io.select(Message.PLEASE_SELECT_PRODUCT, productList);
 			
 			// 売ることができない場合
 			if( !this.canSellIt(selected)){
-				appender.writeln("現在の投入金額は%#sなので、%#sの商品はお売りできません。", //
+				io.writeln(Message.I_CANT_SELL_ITS_PRODUCT, //
 						coinPool.getTotalAmount(), //
 						selected.getPrice() //
 				);
@@ -340,7 +364,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		@Override
 		public void formatTo(Formatter fmt, int flags, int width, int precision){
-			fmt.format("買う");
+			fmt.format(Message.SELECT_PRODUCT_NAME);
 		}
 	}
 }

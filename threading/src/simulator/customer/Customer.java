@@ -13,6 +13,7 @@ import simulator.io.IOManager;
 import simulator.product.Drink;
 import simulator.product.Product;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
@@ -20,12 +21,25 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
 public class Customer{
-	private final IOManager appender;
+	/** 定数宣言のためのインタフェイス */
+	private static interface Message{
+		String RESULT_TITLE= "〜お買いもの結果〜";
+		String I_HAVE_NO_PRODUCTS= "あなたは何も買っていません。";
+		String I_HAVE_PRODUCTS= "あなたは%sを持っています。";
+		String I_HAVE_NO_MONEY= "あなたのお財布の中には何もありません。";
+		String I_HAVE_MONEY= "あなたのお財布の中には%sあります。";
+		String PRODUCT_FORMAT= "%sを%d本";
+		String PRODUCT_SEPARATOR= "と、";
+		String WALLET_FORMAT= "%sが%d枚";
+		String WALLET_SEPARATOR= "、";
+	}
+	
+	private final IOManager io;
 	private final Wallet wallet;
 	private final Multiset<Product> bucket;
 	
 	public Customer(){
-		this.appender= new ConsoleIOManager();
+		this.io= new ConsoleIOManager();
 		this.wallet= new Wallet( //
 				Coins.fiveHundredYenCoin(), // 500円玉が1枚
 				Coins.oneHundredYenCoin(), Coins.oneHundredYenCoin(), // 100円玉が2枚
@@ -57,29 +71,25 @@ public class Customer{
 	}
 	
 	public IOManager getIOManager(){
-		return this.appender;
+		return this.io;
 	}
 	
 	public void showResult(){
-		StringBuffer buf= new StringBuffer();
-		
-		buf.append("〜お買いもの結果〜%n");
+		this.io.writeln(Message.RESULT_TITLE);
 		
 		if(this.bucket.isEmpty()){
-			buf.append("あなたは何も買っていません。%n");
+			this.io.writeln(Message.I_HAVE_NO_PRODUCTS);
 		}
 		else{
-			buf.append(String.format("あなたは%sを持っています。%n", this.formatBoughtProducts()));
+			this.io.writeln(Message.I_HAVE_PRODUCTS, this.formatBoughtProducts());
 		}
 		
 		if(this.wallet.isEmpty()){
-			buf.append("あなたのお財布の中には何もありません。%n");
+			this.io.writeln(Message.I_HAVE_NO_MONEY);
 		}
 		else{
-			buf.append(String.format("あなたのお財布の中には%sあります。%n", this.formatWallet()));
+			this.io.writeln(Message.I_HAVE_MONEY, this.formatWallet());
 		}
-		
-		this.appender.write(buf.toString());
 	}
 	
 	private String formatBoughtProducts(){
@@ -89,12 +99,14 @@ public class Customer{
 	}
 	
 	private String formatBoughtProducts(Queue<? extends Product> things){
-		if(things.isEmpty()){ return ""; }
+		if(things.isEmpty()){ return null; }
 		
 		Product thing= things.poll();
+		String formatted= String.format(Message.PRODUCT_FORMAT, thing, this.bucket.count(thing));
 		
-		return String.format("%sを%d本と%s", thing, this.bucket.count(thing),
-				this.formatBoughtProducts(things));
+		Joiner joiner= Joiner.on(Message.PRODUCT_SEPARATOR).skipNulls();
+		
+		return joiner.join(formatted, this.formatBoughtProducts(things));
 	}
 	
 	private String formatWallet(){
@@ -106,10 +118,12 @@ public class Customer{
 	}
 	
 	private String formatWallet(Queue<Coin> kinds){
-		if(kinds.isEmpty()){ return ""; }
+		if(kinds.isEmpty()){ return null; }
 		
 		Coin coin= kinds.poll();
+		String formatted= String.format(Message.WALLET_FORMAT, coin, this.wallet.count(coin));
 		
-		return String.format("%sが%d枚、%s", coin, this.wallet.count(coin), this.formatWallet(kinds));
+		Joiner joiner= Joiner.on(Message.WALLET_SEPARATOR).skipNulls();
+		return joiner.join(formatted, this.formatWallet(kinds));
 	}
 }
