@@ -1,5 +1,6 @@
 package simulator.currency;
 
+import java.util.Collections;
 import java.util.Comparator;
 
 import simulator.util.Yen;
@@ -44,11 +45,16 @@ public final class Coins{
 		return new Coin(Yen.fiveHundred());
 	}
 	
+	public static Comparator<Coin> ascComparator(){
+		return Collections.reverseOrder(descComparator());
+	}
+	
 	public static Comparator<Coin> descComparator(){
 		return new Comparator<Coin>(){
 			@Override
 			public int compare(Coin lhs, Coin rhs){
 				return -lhs.compareTo(rhs);
-			}};
+			}
+		};
 	}
 }
