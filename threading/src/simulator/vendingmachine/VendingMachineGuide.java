@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 public class VendingMachineGuide{
 	private static interface Message{
 		String PLEASE_SELECT_VENDING_MACHINE= "自動販売機を選んでください。";
+		String INTRODUCE_SELECTED_MACHINE_FORMAT= "%sの自動販売機です。";
 	}
 	
 	public VendingMachineGuide(){}
@@ -36,6 +37,8 @@ public class VendingMachineGuide{
 				
 				Future<Customer> future= service.submit(selected);
 				
+				newCustomer.getIOManager() //
+						.writeln(Message.INTRODUCE_SELECTED_MACHINE_FORMAT, selected);
 				selected.comeNewCustomer(newCustomer);
 				
 				Customer customer= future.get();

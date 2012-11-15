@@ -25,7 +25,7 @@ public class Customer{
 	private static interface Message{
 		String RESULT_TITLE= "〜お買いもの結果〜";
 		String I_HAVE_NO_PRODUCTS= "あなたは何も買っていません。";
-		String I_HAVE_PRODUCTS= "あなたは%sを持っています。";
+		String I_HAVE_PRODUCTS= "あなたは%s持っています。";
 		String I_HAVE_NO_MONEY= "あなたのお財布の中には何もありません。";
 		String I_HAVE_MONEY= "あなたのお財布の中には%sあります。";
 		String PRODUCT_FORMAT= "%sを%d本";
@@ -102,7 +102,8 @@ public class Customer{
 		if(things.isEmpty()){ return null; }
 		
 		Product thing= things.poll();
-		String formatted= String.format(Message.PRODUCT_FORMAT, thing, this.bucket.count(thing));
+		String formatted= String.format( //
+				Message.PRODUCT_FORMAT, thing.getName(), this.bucket.count(thing));
 		
 		Joiner joiner= Joiner.on(Message.PRODUCT_SEPARATOR).skipNulls();
 		

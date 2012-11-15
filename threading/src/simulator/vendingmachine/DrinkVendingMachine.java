@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.Queue;
@@ -20,12 +21,11 @@ import simulator.product.Drink;
 import simulator.util.Yen;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.ImmutableSortedMultiset;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
 public class DrinkVendingMachine implements VendingMachine<Drink>{
@@ -137,19 +137,18 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 	private String formatPayback(Collection<Coin> payback){
 		// コインの種類
 		ImmutableSortedSet<Coin> kinds= ImmutableSortedSet.copyOf(Coins.descComparator(), payback);
-		// コインの枚数
-		ImmutableMultiset<Coin> ncoins= ImmutableMultiset.copyOf(payback);
-		// 合計金額
-		Yen total= Yen.zero();
-		for(Coin coin : payback){
-			total= total.add(coin.getAmount());
-		}
+		// コインの枚数と合計金額
+		Wallet workWallet= new Wallet(payback);
 		// 高い順に表示
-		return String.format(Message.PAYBACK_FORMAT, total,
-				this.formatPaybackDetails(Queues.newPriorityQueue(kinds), ncoins));
+		return String.format(Message.PAYBACK_FORMAT, //
+				workWallet.getTotalAmount(), //
+				this.formatPaybackDetails( //
+						Queues.newPriorityQueue(kinds), //
+						ImmutableMultiset.copyOf(workWallet)) //
+				);
 	}
 	
-	private String formatPaybackDetails(Queue<Coin> kinds, Multiset<Coin> ncoins){
+	private String formatPaybackDetails(Queue<Coin> kinds, ImmutableMultiset<Coin> ncoins){
 		if(kinds.isEmpty()){ return null; }
 		
 		Coin coin= kinds.poll();
@@ -343,18 +342,48 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 			final Yen preAmount= dest.getTotalAmount().add(src.getTotalAmount());
 			
 			// FIXME: 投入金額からお金を崩して、moveAmountちょうどの金額ができるようにする
+			// 安いコインから順に移動させる
+			Deque<Coin> coins= Queues.newArrayDeque( //
+					ImmutableSortedMultiset.copyOf(Coins.ascComparator(), src));
+			Yen remaining= moveAmount;
+			Wallet workWallet= new Wallet();
+			while(remaining.compareTo(Yen.zero()) > 0){
+				// ループ中にcoinsが空になるのはありえない
+				if(coins.isEmpty()){ throw new AssertionError(); }
+				Coin coin= coins.poll();
+				
+				// moveAmountより高いお金が来たら、崩してDequeの最初に入れる
+				while(coin.getAmount().compareTo(remaining) > 0){
+					// 安いコインから使いたい
+					// 降順ソートのコインたちをDequeの先頭要素に挿入していくと、逆順になる
+					ImmutableSortedMultiset<Coin> tmps= ImmutableSortedMultiset.copyOf( //
+							Coins.descComparator(), //
+							Coins.exchange(coin) //
+							);
+					for(Coin tmp : tmps){
+						coins.addFirst(tmp);
+					}
+					coin= coins.poll();
+				}
+				
+				remaining= remaining.subtract(coin.getAmount());
+				workWallet.add(coin);
+			}
+			checkState(workWallet.getTotalAmount().compareTo(moveAmount) == 0,
+					"workWallet=%s, coins=%s, moveAmount=%s, dest=%s, src=%s", workWallet, coins,
+					moveAmount, dest, src);
+			
+			// 計算が正しく行われたため、一気にお金を移動させる
+			src.clear();
+			src.addAll(coins);
+			dest.addAll(workWallet);
 			
 			final Yen postAmount= dest.getTotalAmount().add(src.getTotalAmount());
 			checkState( //
 					preAmount.compareTo(postAmount) == 0, //
-					"投入金額から%#sを金庫にしまった結果、%#sから%#sに投入金額と金庫の金額の合計値が変化しました。", //
+					"投入金額から%sを金庫にしまった結果、%sから%sに投入金額と金庫の金額の合計値が変化しました。", //
 					moveAmount, preAmount, postAmount //
 			);
-		}
-		
-		private ImmutableCollection<Coin> exchange(Coin orig, Coin want){
-			// FIXME: payback()のアルゴリズムを使って、両替する
-			return ImmutableList.of(orig);
 		}
 		
 		private boolean canSellIt(Drink product){
