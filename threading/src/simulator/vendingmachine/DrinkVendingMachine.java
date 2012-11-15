@@ -155,7 +155,29 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		formatter.format("ドリンク");
 	}
 	
+	@Override
+	public String toString(){
+		return String.format("%s", this);
+	}
+	
+	/**
+	 * 自動販売機に対する操作。.<br>
+	 * {@link #perform(Customer)}の返り値は、次に行われる操作となる。<br>
+	 * また、次に行われる操作が存在しないときは、nullを返す。<br>
+	 * 
+	 * @author E.Sekito
+	 * @since 2012/11/15
+	 */
 	private static interface Operation extends Formattable{
+		/**
+		 * ある操作を、customerに対して実行する。
+		 * 
+		 * @param customer
+		 *            お客さん
+		 * @return 次に行われる操作。そんな操作が存在しなければnull。
+		 * @throws NullPointerException
+		 *             customerがnullのとき
+		 */
 		Operation perform(Customer customer);
 	}
 	
@@ -195,7 +217,8 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 					new Exit(new Payback()) //
 					);
 			
-			Operation selected= DrinkVendingMachine.this.appender.select("操作を選択してください。", operationList);
+			Operation selected= DrinkVendingMachine.this.appender.select("操作を選択してください。",
+					operationList);
 			
 			return selected;
 		}
