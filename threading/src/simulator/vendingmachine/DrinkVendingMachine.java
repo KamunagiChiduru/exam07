@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class DrinkVendingMachine implements VendingMachine<Drink>{
@@ -194,6 +195,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		@Override
 		public Operation perform(Customer customer){
+			checkNotNull(customer);
 			// 終了前に呼ぶ操作が指定されていたときには、操作を呼んでから終了する
 			if(this.beforeExit != null){
 				this.beforeExit.perform(customer);
@@ -210,6 +212,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 	private class SelectOperation implements Operation{
 		@Override
 		public Operation perform(Customer customer){
+			checkNotNull(customer);
 			ImmutableList<Operation> operationList= ImmutableList.of( //
 					new SelectCoin(), //
 					new SelectProduct(), //
@@ -232,6 +235,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 	private class SelectCoin implements Operation{
 		@Override
 		public Operation perform(Customer customer){
+			checkNotNull(customer);
 			ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
 			
 			Coin selected= DrinkVendingMachine.this.appender.select("入れるコインを選択してください。", coinList);
@@ -263,6 +267,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		@Override
 		public Operation perform(Customer customer){
+			checkNotNull(customer);
 			// コインの枚数が最小となるようにおつりを出す
 			customer.giveCoins(DrinkVendingMachine.this.payback());
 			
@@ -278,6 +283,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 	private class SelectProduct implements Operation{
 		@Override
 		public Operation perform(Customer customer){
+			checkNotNull(customer);
 			ImmutableList<Drink> productList= ImmutableList.of( //
 					Drink.COFFEE, //
 					Drink.BOTTLE_COLA, //
