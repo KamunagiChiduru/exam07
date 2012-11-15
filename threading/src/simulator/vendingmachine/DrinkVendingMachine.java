@@ -220,7 +220,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 					new Exit(new Payback()) //
 					);
 			
-			Operation selected= DrinkVendingMachine.this.appender.select("操作を選択してください。",
+			Operation selected= appender.select("操作を選択してください。",
 					operationList);
 			
 			return selected;
@@ -236,13 +236,20 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		@Override
 		public Operation perform(Customer customer){
 			checkNotNull(customer);
+			
+			// お客さんがコインを持っていない場合
+			if( !customer.hasCoin()){
+				appender.writeln("あなたはお金を持っていません。");
+				
+				return new SelectOperation();
+			}
+			
 			ImmutableList<Coin> coinList= ImmutableList.copyOf(customer.getUniqueCoinSet());
 			
-			Coin selected= DrinkVendingMachine.this.appender.select("入れるコインを選択してください。", coinList);
+			Coin selected= appender.select("入れるコインを選択してください。", coinList);
 			
-			DrinkVendingMachine.this.putInto(customer.pay(selected));
-			DrinkVendingMachine.this.appender.writeln("現在%s円入っています。",
-					DrinkVendingMachine.this.getTotalAmount());
+			putInto(customer.pay(selected));
+			appender.writeln("現在%s円入っています。", getTotalAmount());
 			
 			return new SelectOperation();
 		}
@@ -269,7 +276,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		public Operation perform(Customer customer){
 			checkNotNull(customer);
 			// コインの枚数が最小となるようにおつりを出す
-			customer.giveCoins(DrinkVendingMachine.this.payback());
+			customer.giveCoins(payback());
 			
 			return this.nextOperation;
 		}
@@ -290,21 +297,20 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 					Drink.ENERGY_DRINK, //
 					Drink.TEE_OF_TOKUHO //
 					);
-			Drink selected= DrinkVendingMachine.this.appender.select("商品を選択してください。", productList);
+			Drink selected= appender.select("商品を選択してください。", productList);
 			
 			// 売ることができない場合
 			if( !this.canSellIt(selected)){
-				DrinkVendingMachine.this.appender.writeln("現在の投入金額は%#sなので、%#sの商品はお売りできません。", //
-						DrinkVendingMachine.this.coinPool.getTotalAmount(), //
+				appender.writeln("現在の投入金額は%#sなので、%#sの商品はお売りできません。", //
+						coinPool.getTotalAmount(), //
 						selected.getPrice() //
-						);
+				);
 				return new SelectOperation();
 			}
 			
 			// 取引が成立したので、商品価格分を金庫にしまう
-			this.move(DrinkVendingMachine.this.safeBox, DrinkVendingMachine.this.coinPool,
-					selected.getPrice());
-			customer.buy(DrinkVendingMachine.this.sell(selected));
+			this.move(safeBox, coinPool, selected.getPrice());
+			customer.buy(sell(selected));
 			
 			return new Payback(new SelectOperation());
 		}
@@ -329,7 +335,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		
 		private boolean canSellIt(Drink product){
 			// 購入可能条件: 投入金額 >= 商品価格
-			return DrinkVendingMachine.this.coinPool.getTotalAmount().compareTo(product.getPrice()) >= 0;
+			return coinPool.getTotalAmount().compareTo(product.getPrice()) >= 0;
 		}
 		
 		@Override
