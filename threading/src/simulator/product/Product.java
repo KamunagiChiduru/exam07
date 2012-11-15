@@ -6,10 +6,10 @@ import java.util.Formatter;
 import simulator.util.Yen;
 
 public enum Product implements Formattable{
-	COFFEE("コーヒー", new Yen(120)), 
-	BOTTLE_COLA("ボトルのコーラ", new Yen(150)), 
-	ENERGY_DRINK("栄養ドリンク", new Yen(200)), 
-	TEE_OF_TOKUHO("トクホのお茶", new Yen(190));
+	COFFEE("コーヒー", Yen.of(120)), 
+	BOTTLE_COLA("ボトルのコーラ", Yen.of(150)), 
+	ENERGY_DRINK("栄養ドリンク", Yen.of(200)), 
+	TEE_OF_TOKUHO("トクホのお茶", Yen.of(190));
 
 	private final String name;
 	private final Yen price;
