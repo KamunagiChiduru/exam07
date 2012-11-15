@@ -10,7 +10,7 @@ import simulator.currency.Coins;
 import simulator.currency.Wallet;
 import simulator.io.Appender;
 import simulator.io.ConsoleAppender;
-import simulator.product.Product;
+import simulator.product.Drink;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
@@ -21,7 +21,7 @@ import com.google.common.collect.Queues;
 public class Customer{
 	private final Appender appender;
 	private final Wallet wallet;
-	private final Multiset<Product> bucket;
+	private final Multiset<Drink> bucket;
 	
 	public Customer(){
 		this.appender= new ConsoleAppender();
@@ -43,7 +43,7 @@ public class Customer{
 		return this.wallet.get(paied);
 	}
 	
-	public void buy(Product bought){
+	public void buy(Drink bought){
 		this.bucket.add(checkNotNull(bought));
 	}
 	

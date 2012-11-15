@@ -8,14 +8,13 @@ import java.util.concurrent.Future;
 import simulator.customer.Customer;
 import simulator.io.Appender;
 import simulator.io.ConsoleAppender;
-import simulator.vendingmachine.VendingMachine;
-
+import simulator.vendingmachine.DrinkVendingMachine;
 
 public class Simulator{
 	private static final Appender appender= new ConsoleAppender();
 	
 	public static void main(String[] args){
-		VendingMachine vendingMachine= new VendingMachine(appender);
+		DrinkVendingMachine vendingMachine= new DrinkVendingMachine(appender);
 		ExecutorService service= Executors.newCachedThreadPool();
 		
 		vendingMachine.comeNewCustomer(new Customer());
