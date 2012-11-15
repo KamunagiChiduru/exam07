@@ -1,5 +1,7 @@
 package simulator.customer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.Queue;
 
@@ -9,6 +11,7 @@ import simulator.currency.Wallet;
 import simulator.io.ConsoleIOManager;
 import simulator.io.IOManager;
 import simulator.product.Drink;
+import simulator.product.Product;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
@@ -16,12 +19,10 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class Customer{
 	private final IOManager appender;
 	private final Wallet wallet;
-	private final Multiset<Drink> bucket;
+	private final Multiset<Product> bucket;
 	
 	public Customer(){
 		this.appender= new ConsoleIOManager();
@@ -82,7 +83,18 @@ public class Customer{
 	}
 	
 	private String formatBoughtProducts(){
-		return "hogehoge";
+		Queue<Product> things= Queues.newPriorityQueue(this.bucket);
+		
+		return this.formatBoughtProducts(things);
+	}
+	
+	private String formatBoughtProducts(Queue<? extends Product> things){
+		if(things.isEmpty()){ return ""; }
+		
+		Product thing= things.poll();
+		
+		return String.format("%sを%d本と%s", thing, this.bucket.count(thing),
+				this.formatBoughtProducts(things));
 	}
 	
 	private String formatWallet(){

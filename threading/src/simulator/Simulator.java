@@ -5,6 +5,8 @@ import simulator.vendingmachine.VendingMachineGuide;
 
 public class Simulator{
 	public static void main(String[] args){
-		new VendingMachineGuide().comeNewCustomer(new Customer());
+		VendingMachineGuide guide= new VendingMachineGuide();
+		
+		guide.comeNewCustomer(new Customer());
 	}
 }
