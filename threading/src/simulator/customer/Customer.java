@@ -8,8 +8,8 @@ import java.util.Queue;
 import simulator.currency.Coin;
 import simulator.currency.Coins;
 import simulator.currency.Wallet;
-import simulator.io.Appender;
-import simulator.io.ConsoleAppender;
+import simulator.io.IOManager;
+import simulator.io.ConsoleIOManager;
 import simulator.product.Drink;
 
 import com.google.common.collect.HashMultiset;
@@ -19,12 +19,12 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Queues;
 
 public class Customer{
-	private final Appender appender;
+	private final IOManager appender;
 	private final Wallet wallet;
 	private final Multiset<Drink> bucket;
 	
 	public Customer(){
-		this.appender= new ConsoleAppender();
+		this.appender= new ConsoleIOManager();
 		this.wallet= new Wallet( //
 				Coins.fiveHundredYenCoin(), // 500円玉が1枚
 				Coins.oneHundredYenCoin(), Coins.oneHundredYenCoin(), // 100円玉が2枚
@@ -51,7 +51,7 @@ public class Customer{
 		this.wallet.addAll(checkNotNull(coins));
 	}
 	
-	public void showResult(Appender appender){
+	public void showResult(IOManager appender){
 		StringBuffer buf= new StringBuffer();
 		
 		buf.append("〜お買いもの結果〜%n");

@@ -9,8 +9,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 
-public class ConsoleAppender implements Appender{
-	public ConsoleAppender(){}
+public class ConsoleIOManager implements IOManager{
+	public ConsoleIOManager(){}
 	
 	@Override
 	public <T>T select(String msg, Collection<T> candidates){

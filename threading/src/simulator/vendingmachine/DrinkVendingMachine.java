@@ -12,7 +12,7 @@ import simulator.currency.Coin;
 import simulator.currency.Coins;
 import simulator.currency.Wallet;
 import simulator.customer.Customer;
-import simulator.io.Appender;
+import simulator.io.IOManager;
 import simulator.product.Drink;
 import simulator.util.Yen;
 
@@ -27,12 +27,12 @@ import com.google.common.collect.Queues;
 import static com.google.common.base.Preconditions.checkState;
 
 public class DrinkVendingMachine implements VendingMachine<Drink>{
-	private final Appender appender;
+	private final IOManager appender;
 	private final BlockingQueue<Customer> customerQueue= new LinkedBlockingQueue<>();
 	private final Wallet coinPool;
 	private final Wallet safeBox;
 	
-	public DrinkVendingMachine(Appender appender){
+	public DrinkVendingMachine(IOManager appender){
 		this.appender= appender;
 		this.coinPool= new Wallet();
 		this.safeBox= new Wallet();

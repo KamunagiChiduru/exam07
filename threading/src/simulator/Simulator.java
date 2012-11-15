@@ -6,12 +6,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import simulator.customer.Customer;
-import simulator.io.Appender;
-import simulator.io.ConsoleAppender;
+import simulator.io.IOManager;
+import simulator.io.ConsoleIOManager;
 import simulator.vendingmachine.DrinkVendingMachine;
 
 public class Simulator{
-	private static final Appender appender= new ConsoleAppender();
+	private static final IOManager appender= new ConsoleIOManager();
 	
 	public static void main(String[] args){
 		DrinkVendingMachine vendingMachine= new DrinkVendingMachine(appender);
