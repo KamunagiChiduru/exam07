@@ -67,6 +67,7 @@ public final class Coins{
 				Collections2.filter(getOneOfEach(), new Predicate<Coin>(){
 					@Override
 					public boolean apply(Coin o){
+						if(o == null){ return false; }
 						return o.compareTo(upperBounds) < 0;
 					}
 				}));
@@ -88,15 +89,15 @@ public final class Coins{
 	}
 	
 	public static Comparator<Coin> ascComparator(){
-		return Collections.reverseOrder(descComparator());
-	}
-	
-	public static Comparator<Coin> descComparator(){
 		return new Comparator<Coin>(){
 			@Override
 			public int compare(Coin lhs, Coin rhs){
-				return -lhs.compareTo(rhs);
+				return lhs.compareTo(rhs);
 			}
 		};
+	}
+	
+	public static Comparator<Coin> descComparator(){
+		return Collections.reverseOrder(ascComparator());
 	}
 }

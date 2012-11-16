@@ -1,8 +1,5 @@
 package simulator.vendingmachine;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -27,6 +24,9 @@ import com.google.common.collect.ImmutableSortedMultiset;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class DrinkVendingMachine implements VendingMachine<Drink>{
 	private static interface Message{
@@ -203,7 +203,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink>{
 		Operation perform(Customer customer);
 	}
 	
-	private class Exit implements Operation{
+	private static class Exit implements Operation{
 		private final Operation beforeExit;
 		
 		Exit(){

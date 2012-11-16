@@ -1,16 +1,17 @@
 package simulator.io;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class ConsoleIOManager implements IOManager{
 	/** 定数宣言のためのインタフェイス */
@@ -32,7 +33,8 @@ public class ConsoleIOManager implements IOManager{
 		this.write(Message.CANDIDATE_BOX, this.formatCandidates(0, copyList));
 		
 		try{
-			BufferedReader reader= new BufferedReader(new InputStreamReader(System.in));
+			BufferedReader reader= new BufferedReader( //
+					new InputStreamReader(System.in, Charset.defaultCharset()));
 			
 			Range<Integer> validRange= Ranges.closed(1, copyList.size());
 			
