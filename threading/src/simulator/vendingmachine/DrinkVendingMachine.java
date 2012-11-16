@@ -105,6 +105,7 @@ public class DrinkVendingMachine implements VendingMachine<Drink> {
      */
     public DrinkVendingMachine( IOManager appender) {
         this.io = appender;
+        // ↓java6にしたら出なくなった↓
         // XXX: ここでcheckstyleのエラーが出るが、checkstyleのバグとのことで、無視する
         this.coinPool = new Wallet();
         this.safeBox = new Wallet();
