@@ -18,7 +18,7 @@ public class VendingMachineGuide {
     /** メッセージ文字列 */
     private static interface Message {
         /** 自動販売機を選んでください。 */
-        String PLEASE_SELECT_VENDING_MACHINE = "自動販売機を選んでください。";
+        String PLEASE_SELECT_VENDING_MACHINE = "購入する自動販売機を選択してください。";
 
         /** %sの自動販売機です。 */
         String INTRODUCE_SELECTED_MACHINE_FORMAT = "%sの自動販売機です。";
